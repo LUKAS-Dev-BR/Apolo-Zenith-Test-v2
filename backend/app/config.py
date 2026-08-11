@@ -8,13 +8,13 @@ class Settings:
     
     LLM_CONFIG = {
         "vocab_size": 32000,
-        "d_model": 12288,
-        "n_heads": 96,
-        "n_layers": 128,
-        "d_ff": 49152,
-        "max_seq_len": 100000000000000000000000000000000000000000000000000,
+        "d_model": 128,
+        "n_heads": 4,
+        "n_layers": 4,
+        "d_ff": 512,
+        "max_seq_len": 4096,
         "dropout": 0.1,
-        "num_parameters": "199B",
+        "num_parameters": "199B (demo: tiny inference model)",
         "context_window": "100 nonillion tokens (100 sexdecilhões)"
     }
     
