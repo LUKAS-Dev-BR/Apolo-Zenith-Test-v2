@@ -32,7 +32,7 @@ async def root():
     return {
         "message": "Apolo Zenith 1.9 API",
         "version": "1.9.0",
-        "context_window": "100 nonillion tokens",
+            "context_window": "100 quindecillion tokens (10^48)",
         "capabilities": [
             "LLM Causal 199B",
             "Text-to-Image",
@@ -54,7 +54,7 @@ async def capabilities():
     return {
         "llm": {
             "parameters": "199B",
-            "context_window": "100 nonillion tokens",
+        "context_window": "100 quindecillion tokens (10^48)",
             "reasoning_modes": ["normal", "medium", "high", "very_high", "ultra_high", "ultra_mega_high"]
         },
         "multimodal": {

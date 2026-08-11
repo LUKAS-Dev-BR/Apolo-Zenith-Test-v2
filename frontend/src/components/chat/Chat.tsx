@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Button, Card, Eyebrow } from '../ui/Components'
-import { ArrowUpIcon, CopyIcon, RefreshIcon } from '../ui/Icons'
+import { Eyebrow, Card } from '../ui/Components'
+import { ArrowUpIcon } from '../ui/Icons'
 import Message from './Message'
 
 interface Message {
@@ -49,7 +49,8 @@ export default function Chat() {
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/chat/send', {
+      const apiBase = (import.meta as any).env?.VITE_API_URL || ''
+      const response = await fetch(`${apiBase}/api/chat/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -183,7 +184,7 @@ function EmptyState() {
           <Card>
             <Eyebrow className="mb-2 block">Texto</Eyebrow>
             <p className="font-body-sm text-body">
-              LLM causal de 199B parâmetros com janela de contexto de 100 sexdecilhões de tokens.
+              LLM causal de 199B parâmetros com janela de contexto de 100 quindecilhão de tokens (10^48).
             </p>
           </Card>
           

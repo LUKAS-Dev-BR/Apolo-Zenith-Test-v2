@@ -1,5 +1,5 @@
 import React from 'react'
-import { Eyebrow, Button, Divider } from './Components'
+import { Eyebrow, Divider } from './Components'
 
 interface SidebarProps {
   isOpen: boolean

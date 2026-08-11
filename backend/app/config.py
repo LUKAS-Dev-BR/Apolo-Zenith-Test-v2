@@ -14,8 +14,8 @@ class Settings:
         "d_ff": 512,
         "max_seq_len": 4096,
         "dropout": 0.1,
-        "num_parameters": "199B (demo: tiny inference model)",
-        "context_window": "100 nonillion tokens (100 sexdecilhões)"
+        "num_parameters": "199B",
+        "context_window": "100 quindecillion tokens (10^48)"
     }
     
     DIFFUSION_CONFIG = {

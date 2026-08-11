@@ -43,7 +43,7 @@ interface AccordionItemProps {
   className?: string
 }
 
-export function AccordionItem({ value, children, className = '' }: AccordionItemProps) {
+export function AccordionItem({ value: _value, children, className = '' }: AccordionItemProps) {
   return (
     <div className={`card ${className}`}>
       {children}
