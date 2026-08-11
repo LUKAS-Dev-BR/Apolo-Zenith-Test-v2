@@ -12,7 +12,7 @@ class Settings:
         "n_heads": 4,
         "n_layers": 4,
         "d_ff": 512,
-        "max_seq_len": 4096,
+        "max_seq_len": 100000000000000000000000000000000000000000000000000,
         "dropout": 0.1,
         "num_parameters": "199B",
         "context_window": "100 quindecillion tokens (10^48)"

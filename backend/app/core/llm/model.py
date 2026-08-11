@@ -44,18 +44,16 @@ class RoPE(nn.Module):
     def __init__(self, d_model: int, max_seq_len: int = 100096):
         super().__init__()
         self.d_model = d_model
+        self.max_seq_len = max_seq_len
         
         freqs = 1.0 / (10000 ** (torch.arange(0, d_model, 2).float() / d_model))
         self.register_buffer('freqs', freqs)
         
-        t = torch.arange(max_seq_len).float()
-        freqs = torch.outer(t, self.freqs)
-        self.register_buffer('cos', freqs.cos())
-        self.register_buffer('sin', freqs.sin())
-        
     def forward(self, x, seq_len):
-        cos = self.cos[:seq_len].unsqueeze(0)
-        sin = self.sin[:seq_len].unsqueeze(0)
+        t = torch.arange(seq_len, device=x.device).float()
+        freqs = torch.outer(t, self.freqs)
+        cos = freqs.cos().unsqueeze(0)
+        sin = freqs.sin().unsqueeze(0)
         
         x1 = x[..., ::2]
         x2 = x[..., 1::2]
