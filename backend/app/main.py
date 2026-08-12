@@ -1,14 +1,22 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from app.api.routes import chat, media, auth, agents
 from app.core.infrastructure.queue_manager import QueueManager
 from app.core.infrastructure.kv_store import KVStore
+from app.core.database.db import init_db
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
 
 app = FastAPI(
     title="Apolo Zenith 1.9",
     description="IA Multimodal Unificada",
-    version="1.9.0"
+    version="1.9.0",
+    lifespan=lifespan
 )
 
 app.add_middleware(
@@ -32,7 +40,7 @@ async def root():
     return {
         "message": "Apolo Zenith 1.9 API",
         "version": "1.9.0",
-            "context_window": "100 quindecillion tokens (10^48)",
+        "context_window": "100 quindecillion tokens (10^48)",
         "capabilities": [
             "LLM Causal 199B",
             "Text-to-Image",
@@ -54,7 +62,7 @@ async def capabilities():
     return {
         "llm": {
             "parameters": "199B",
-        "context_window": "100 quindecillion tokens (10^48)",
+            "context_window": "100 quindecillion tokens (10^48)",
             "reasoning_modes": ["normal", "medium", "high", "very_high", "ultra_high", "ultra_mega_high"]
         },
         "multimodal": {

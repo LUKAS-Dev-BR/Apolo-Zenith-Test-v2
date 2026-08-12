@@ -3,15 +3,20 @@ import { Eyebrow, Card } from '../ui/Components'
 import { ArrowUpIcon } from '../ui/Icons'
 import Message from './Message'
 
-interface Message {
+interface MessageItem {
   id: string
   role: 'user' | 'assistant'
   content: string
   timestamp: Date
 }
 
-export default function Chat() {
-  const [messages, setMessages] = useState<Message[]>([])
+interface ChatProps {
+  conversationId: number | null
+  onConversationCreated: (id: number) => void
+}
+
+export default function Chat({ conversationId, onConversationCreated }: ChatProps) {
+  const [messages, setMessages] = useState<MessageItem[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -32,12 +37,40 @@ export default function Chat() {
     }
   }, [input])
 
+  useEffect(() => {
+    if (conversationId) {
+      loadMessages(conversationId)
+    } else {
+      setMessages([])
+    }
+  }, [conversationId])
+
+  const loadMessages = async (convId: number) => {
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch(`/api/chat/conversations/${convId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setMessages(data.messages.map((m: any) => ({
+          id: m.id.toString(),
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(m.created_at)
+        })))
+      }
+    } catch (e) {
+      console.error('Erro ao carregar mensagens:', e)
+    }
+  }
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault()
     
     if (!input.trim() || isLoading) return
 
-    const userMessage: Message = {
+    const userMessage: MessageItem = {
       id: Date.now().toString(),
       role: 'user',
       content: input.trim(),
@@ -49,21 +82,31 @@ export default function Chat() {
     setIsLoading(true)
 
     try {
-      const apiBase = (import.meta as any).env?.VITE_API_URL || ''
-      const response = await fetch(`${apiBase}/api/chat/send`, {
+      const token = localStorage.getItem('token')
+      const response = await fetch('/api/chat/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          message: input.trim(),
-          reasoning_mode: 'normal'
+          message: userMessage.content,
+          reasoning_mode: 'normal',
+          conversation_id: conversationId
         })
       })
 
+      if (!response.ok) {
+        throw new Error('Erro na API')
+      }
+
       const data = await response.json()
 
-      const assistantMessage: Message = {
+      if (!conversationId && data.conversation_id) {
+        onConversationCreated(data.conversation_id)
+      }
+
+      const assistantMessage: MessageItem = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: data.response,
@@ -74,7 +117,7 @@ export default function Chat() {
     } catch (error) {
       console.error('Erro ao enviar mensagem:', error)
       
-      const errorMessage: Message = {
+      const errorMessage: MessageItem = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: 'Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.',
@@ -100,7 +143,6 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col h-full bg-canvas">
-      {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 md:p-6">
         {messages.length === 0 ? (
           <EmptyState />
@@ -127,7 +169,6 @@ export default function Chat() {
         )}
       </div>
 
-      {/* Input Area */}
       <div className="border-t border-hairline p-4 md:p-6 bg-canvas">
         <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
           <div className="relative bg-canvas-soft border border-hairline rounded-xl overflow-hidden focus-within:border-body-mid transition-colors">
@@ -184,7 +225,7 @@ function EmptyState() {
           <Card>
             <Eyebrow className="mb-2 block">Texto</Eyebrow>
             <p className="font-body-sm text-body">
-              LLM causal de 199B parâmetros com janela de contexto de 100 quindecilhão de tokens (10^48).
+              LLM causal de 199B parâmetros com janela de contexto de 100 quindecilhão de tokens.
             </p>
           </Card>
           
@@ -206,15 +247,6 @@ function EmptyState() {
             <Eyebrow className="mb-2 block">Áudio & Música</Eyebrow>
             <p className="font-body-sm text-body">
               Pipeline DSP com difusão de espectrogramas e vocoder neural.
-            </p>
-          </Card>
-        </div>
-        
-        <div className="mt-8">
-          <Card variant="soft">
-            <Eyebrow className="mb-2 block">Agentes</Eyebrow>
-            <p className="font-body-sm text-body">
-              Codificação agentica com 6 modos de raciocínio e capacidade de modelagem 3D profissional.
             </p>
           </Card>
         </div>
